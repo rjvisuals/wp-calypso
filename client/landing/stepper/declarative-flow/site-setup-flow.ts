@@ -25,6 +25,7 @@ import type { StepPath } from './internals/steps-repository';
 
 const SiteIntent = Onboard.SiteIntent;
 const SiteGoal = Onboard.SiteGoal;
+const MAX_STEPS = 15;
 
 export const siteSetupFlow: Flow = {
 	name: 'site-setup',
@@ -103,24 +104,146 @@ export const siteSetupFlow: Flow = {
 		const verticalsStepEnabled = isEnabled( 'signup/site-vertical-step' ) && isEnabledFTM;
 		const goalsStepEnabled = isEnabled( 'signup/goals-step' ) && isEnabledFTM;
 
-		// Set up Step progress for Woo flow - "Step 2 of 4"
-		if ( intent === 'sell' && storeType === 'power' ) {
-			switch ( currentStep ) {
-				case 'storeAddress':
-					setStepProgress( { progress: 1, count: 4 } );
-					break;
-				case 'businessInfo':
-					setStepProgress( { progress: 2, count: 4 } );
-					break;
-				case 'wooConfirm':
-					setStepProgress( { progress: 3, count: 4 } );
-					break;
-				case 'processing':
-					setStepProgress( { progress: 4, count: 4 } );
-					break;
+		switch ( currentStep ) {
+			case 'goals':
+			case 'vertical':
+			case 'intent':
+				updateFlowProgress( { beginningStep: currentStep } );
+				break;
+			case 'processing':
+				updateFlowProgress( { endStep: currentStep } );
+				break;
+		}
+
+		switch ( intent ) {
+			case SiteIntent.Write: {
+				switch ( currentStep ) {
+					case 'options':
+						updateFlowProgress( { middleProgress: { progress: 1, count: 4 } } );
+						break;
+					case 'bloggerStartingPoint':
+						updateFlowProgress( { middleProgress: { progress: 2, count: 4 } } );
+						break;
+					case 'courses':
+					case 'designSetup':
+						updateFlowProgress( { middleProgress: { progress: 3, count: 4 } } );
+						break;
+					case 'processing':
+						updateFlowProgress( { endStep: currentStep } );
+						break;
+				}
+
+				break;
 			}
-		} else {
-			setStepProgress( undefined );
+			case SiteIntent.Build: {
+				switch ( currentStep ) {
+					case 'designSetup':
+						updateFlowProgress( { middleProgress: { progress: 1, count: 2 } } );
+						break;
+					case 'processing':
+						updateFlowProgress( { endStep: currentStep } );
+						break;
+				}
+
+				break;
+			}
+			case SiteIntent.Sell: {
+				switch ( currentStep ) {
+					case 'options':
+						updateFlowProgress( { middleProgress: { progress: 1, count: 6 } } );
+						break;
+					case 'storeFeatures':
+						updateFlowProgress( { middleProgress: { progress: 2, count: 6 } } );
+						break;
+				}
+				if ( storeType === 'simple' ) {
+					switch ( currentStep ) {
+						case 'designSetup':
+							updateFlowProgress( { middleProgress: { progress: 3, count: 6 } } );
+							break;
+						case 'processing':
+							updateFlowProgress( { endStep: currentStep } );
+							break;
+					}
+				} else if ( storeType === 'power' ) {
+					switch ( currentStep ) {
+						case 'storeAddress':
+							updateFlowProgress( { middleProgress: { progress: 3, count: 6 } } );
+							break;
+						case 'businessInfo':
+							updateFlowProgress( { middleProgress: { progress: 4, count: 6 } } );
+							break;
+						case 'wooConfirm':
+						case 'wooInstallPlugins':
+							updateFlowProgress( { middleProgress: { progress: 5, count: 6 } } );
+							break;
+						case 'processing':
+							updateFlowProgress( { endStep: currentStep } );
+							break;
+					}
+				}
+
+				break;
+			}
+			case SiteIntent.Import: {
+				switch ( currentStep ) {
+					case 'import':
+						updateFlowProgress( { middleProgress: { progress: 1, count: 4 } } );
+						break;
+					case 'importList':
+					case 'importReady':
+					case 'importReadyNot':
+					case 'importReadyWpcom':
+					case 'importReadyPreview': {
+						updateFlowProgress( { middleProgress: { progress: 2, count: 4 } } );
+						break;
+					}
+					case 'importerWix':
+					case 'importerBlogger':
+					case 'importerMedium':
+					case 'importerSquarespace':
+					case 'importerWordpress':
+						updateFlowProgress( { middleProgress: { progress: 3, count: 4 } } );
+						break;
+					case 'processing':
+						updateFlowProgress( { endStep: currentStep } );
+						break;
+				}
+
+				break;
+			}
+		}
+
+		function updateFlowProgress( flowProgress: {
+			beginningStep?: string;
+			middleProgress?: { progress: number; count: number };
+			endStep?: string;
+		} ) {
+			const beginningSteps = [
+				...( goalsStepEnabled ? [ 'goals' ] : [] ),
+				...( verticalsStepEnabled ? [ 'vertical' ] : [] ),
+				...( ! goalsStepEnabled ? [ 'intent' ] : [] ),
+			];
+
+			let beginningSegment = ( beginningSteps.length - 1 ) / MAX_STEPS;
+			let middleSegment = 0;
+
+			if ( flowProgress.beginningStep ) {
+				beginningSegment = beginningSteps.indexOf( flowProgress.beginningStep );
+			}
+
+			if ( ! flowProgress.beginningStep && flowProgress.middleProgress ) {
+				middleSegment =
+					( flowProgress.middleProgress.progress / flowProgress.middleProgress.count ) * MAX_STEPS;
+			}
+
+			let progress = beginningSegment + middleSegment;
+
+			if ( flowProgress.endStep ) {
+				progress = MAX_STEPS;
+			}
+
+			setStepProgress( { progress: progress, count: MAX_STEPS } );
 		}
 
 		const exitFlow = ( to: string ) => {
