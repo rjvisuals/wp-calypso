@@ -380,7 +380,8 @@ export default withCurrentRoute(
 		const disableFAB =
 			isSimpleSite &&
 			isEditor &&
-			config.isEnabled( 'editor/help-center' ) &&
+			( ( isEditor && config.isEnabled( 'editor/help-center' ) ) ||
+				( isCheckout && config.isEnabled( 'checkout/help-center' ) ) ) &&
 			userAllowedToHelpCenter;
 
 		return {

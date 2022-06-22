@@ -256,7 +256,7 @@ class MasterbarLoggedIn extends Component {
 		this.props.savePreference( MENU_POPOVER_PREFERENCE_KEY, true );
 	};
 
-	renderCheckout() {
+	renderCheckout( showHelpCenter ) {
 		const { isCheckoutPending, previousPath, siteSlug, isJetpackNotAtomic, title } = this.props;
 		return (
 			<AsyncLoad
@@ -267,6 +267,7 @@ class MasterbarLoggedIn extends Component {
 				previousPath={ previousPath }
 				siteSlug={ siteSlug }
 				isLeavingAllowed={ ! isCheckoutPending }
+				showHelpCenter={ showHelpCenter }
 			/>
 		);
 	}
@@ -500,7 +501,9 @@ class MasterbarLoggedIn extends Component {
 		const { isMobile } = this.state;
 
 		if ( isCheckout || isCheckoutPending ) {
-			return this.renderCheckout();
+			return this.renderCheckout(
+				config.isEnabled( 'checkout/help-center' ) && shouldShowHelpCenterToUser( user.ID, locale )
+			);
 		}
 		if ( isMobile ) {
 			if (
