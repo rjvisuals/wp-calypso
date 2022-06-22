@@ -23,6 +23,8 @@ class Help_Center {
 	 */
 	public function __construct() {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_script' ), 100 );
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 110 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_script' ), 100 );
 	}
 
 	/**
@@ -67,6 +69,28 @@ class Help_Center {
 		);
 
 		wp_set_script_translations( 'help-center-script', 'full-site-editing' );
+	}
+
+	/**
+	 * Add icon to WP-ADMIN admin bar
+	 */
+	public function admin_bar_menu() {
+		global $wp_admin_bar;
+
+		if ( ! is_object( $wp_admin_bar ) ) {
+			return;
+		}
+
+		$wp_admin_bar->add_menu(
+			array(
+				'id'     => 'help',
+				'title'  => file_get_contents( plugin_dir_path( __FILE__ ) . 'src/help-icon.svg', true ),
+				'parent' => 'top-secondary',
+				'meta'   => array(
+					'html' => '<div id="help-center" />',
+				),
+			)
+		);
 	}
 }
 add_action( 'init', array( __NAMESPACE__ . '\Help_Center', 'init' ) );

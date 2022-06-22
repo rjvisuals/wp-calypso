@@ -11,7 +11,6 @@ import cx from 'classnames';
 import { QueryClientProvider } from 'react-query';
 import { whatsNewQueryClient } from '../../common/what-new-query-client';
 import CalypsoStateProvider from './CalypsoStateProvider';
-import './help-center.scss';
 
 function HelpCenterContent() {
 	const isDesktop = useMediaQuery( '(min-width: 480px)' );
