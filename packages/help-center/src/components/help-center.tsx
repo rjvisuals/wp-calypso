@@ -46,7 +46,7 @@ const HelpCenter: React.FC< Container > = ( { handleClose } ) => {
 
 	// Need to fix the check for SITE returning NULL
 	const isLoading = isSimpleSite
-		? [ site, ! user, isSupportDataLoading, isLoadingChat ].some( Boolean )
+		? [ ! site, ! user, isSupportDataLoading, isLoadingChat ].some( Boolean )
 		: false;
 
 	useEffect( () => {

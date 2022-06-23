@@ -68,6 +68,14 @@ class Help_Center {
 			\A8C\FSE\Common\get_iso_639_locale( determine_locale() )
 		);
 
+		wp_localize_script(
+			'help-center-script',
+			'helpCenter',
+			array(
+				'currentSiteId' => get_current_blog_id(),
+			)
+		);
+
 		wp_set_script_translations( 'help-center-script', 'full-site-editing' );
 	}
 
