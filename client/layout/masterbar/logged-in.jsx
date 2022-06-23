@@ -256,8 +256,13 @@ class MasterbarLoggedIn extends Component {
 		this.props.savePreference( MENU_POPOVER_PREFERENCE_KEY, true );
 	};
 
-	renderCheckout( showHelpCenter ) {
-		const { isCheckoutPending, previousPath, siteSlug, isJetpackNotAtomic, title } = this.props;
+	renderCheckout() {
+		const { isCheckoutPending, previousPath, siteSlug, isJetpackNotAtomic, title, user, locale } =
+			this.props;
+
+		const userAllowedToHelpCenter =
+			config.isEnabled( 'checkout/help-center' ) && shouldShowHelpCenterToUser( user.ID, locale );
+
 		return (
 			<AsyncLoad
 				require="calypso/layout/masterbar/checkout"
@@ -267,7 +272,7 @@ class MasterbarLoggedIn extends Component {
 				previousPath={ previousPath }
 				siteSlug={ siteSlug }
 				isLeavingAllowed={ ! isCheckoutPending }
-				showHelpCenter={ showHelpCenter }
+				showHelpCenter={ userAllowedToHelpCenter }
 			/>
 		);
 	}

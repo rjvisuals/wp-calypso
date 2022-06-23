@@ -371,6 +371,7 @@ export default withCurrentRoute(
 		const chatIsDocked = ! [ 'reader', 'theme' ].includes( sectionName ) && ! sidebarIsHidden;
 
 		const isEditor = getSectionName( state ) === 'gutenberg-editor';
+		const isCheckout = getSectionName( state ) === 'checkout';
 		const isSimpleSite = getIsSimpleSite( state );
 		const userAllowedToHelpCenter = shouldShowHelpCenterToUser(
 			getCurrentUserId( state ),
@@ -379,7 +380,6 @@ export default withCurrentRoute(
 
 		const disableFAB =
 			isSimpleSite &&
-			isEditor &&
 			( ( isEditor && config.isEnabled( 'editor/help-center' ) ) ||
 				( isCheckout && config.isEnabled( 'checkout/help-center' ) ) ) &&
 			userAllowedToHelpCenter;
