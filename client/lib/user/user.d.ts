@@ -35,6 +35,7 @@ export type OptionalUserData = {
 	primary_blog_url: string;
 	site_count: number;
 	jetpack_site_count?: number;
+	has_jetpack_partner_access?: boolean;
 	social_login_connections: unknown;
 	user_ip_country_code: string;
 	user_URL: string;
