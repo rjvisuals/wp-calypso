@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import config from '@automattic/calypso-config';
 import page from 'page';
 import { ReactElement, useEffect } from 'react';
@@ -10,6 +11,9 @@ import {
 	isFetchingPartner,
 	isAgencyUser,
 } from 'calypso/state/partner-portal/partner/selectors';
+=======
+import { ReactElement } from 'react';
+>>>>>>> 3f95993f20 (Update client code to check isAgencyUser in routing instead of rendering)
 import SitesOverview from '../sites-overview';
 import SitesOverviewContext from '../sites-overview/context';
 import type { SitesOverviewContextInterface } from '../sites-overview/types';
@@ -54,6 +58,8 @@ export default function DashboardOverview( {
 	}
 
 	return (
-		<>{ isFetching ? <JetpackLogo size={ 72 } className="dashboard-overview__logo" /> : null }</>
+		<SitesOverviewContext.Provider value={ context }>
+			<SitesOverview />
+		</SitesOverviewContext.Provider>
 	);
 }
