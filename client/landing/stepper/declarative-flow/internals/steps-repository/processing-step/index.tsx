@@ -43,6 +43,10 @@ const ProcessingStep: Step = function ( props ): ReactElement | null {
 	const progressTitle = useSelect( ( select ) => select( ONBOARD_STORE ).getProgressTitle() );
 	const stepProgress = useSelect( ( select ) => select( ONBOARD_STORE ).getStepProgress() );
 
+	/* eslint-disable @typescript-eslint/no-unused-vars */
+	const intent = useSelect( ( select ) => select( ONBOARD_STORE ).getIntent() );
+	/* eslint-disable @typescript-eslint/no-unused-vars */
+
 	const getCurrentMessage = () => {
 		return progressTitle || loadingMessages[ currentMessageIndex ]?.title;
 	};
