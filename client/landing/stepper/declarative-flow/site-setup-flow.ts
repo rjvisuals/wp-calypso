@@ -111,7 +111,7 @@ export const siteSetupFlow: Flow = {
 				updateFlowProgress( { beginningStep: currentStep } );
 				break;
 			case 'processing':
-				updateFlowProgress( { endStep: currentStep } );
+				updateFlowProgress( { endStep: true } );
 				break;
 		}
 
@@ -129,7 +129,7 @@ export const siteSetupFlow: Flow = {
 						updateFlowProgress( { middleProgress: { progress: 3, count: 4 } } );
 						break;
 					case 'processing':
-						updateFlowProgress( { endStep: currentStep } );
+						updateFlowProgress( { endStep: true } );
 						break;
 				}
 
@@ -141,7 +141,7 @@ export const siteSetupFlow: Flow = {
 						updateFlowProgress( { middleProgress: { progress: 1, count: 2 } } );
 						break;
 					case 'processing':
-						updateFlowProgress( { endStep: currentStep } );
+						updateFlowProgress( { endStep: true } );
 						break;
 				}
 
@@ -162,7 +162,7 @@ export const siteSetupFlow: Flow = {
 							updateFlowProgress( { middleProgress: { progress: 3, count: 6 } } );
 							break;
 						case 'processing':
-							updateFlowProgress( { endStep: currentStep } );
+							updateFlowProgress( { endStep: true } );
 							break;
 					}
 				} else if ( storeType === 'power' ) {
@@ -178,7 +178,7 @@ export const siteSetupFlow: Flow = {
 							updateFlowProgress( { middleProgress: { progress: 5, count: 6 } } );
 							break;
 						case 'processing':
-							updateFlowProgress( { endStep: currentStep } );
+							updateFlowProgress( { endStep: true } );
 							break;
 					}
 				}
@@ -206,7 +206,7 @@ export const siteSetupFlow: Flow = {
 						updateFlowProgress( { middleProgress: { progress: 3, count: 4 } } );
 						break;
 					case 'processing':
-						updateFlowProgress( { endStep: currentStep } );
+						updateFlowProgress( { endStep: true } );
 						break;
 				}
 
@@ -217,7 +217,7 @@ export const siteSetupFlow: Flow = {
 		function updateFlowProgress( flowProgress: {
 			beginningStep?: string;
 			middleProgress?: { progress: number; count: number };
-			endStep?: string;
+			endStep?: boolean;
 		} ) {
 			const beginningSteps = [
 				...( goalsStepEnabled ? [ 'goals' ] : [] ),
@@ -229,7 +229,7 @@ export const siteSetupFlow: Flow = {
 			let middleSegment = 0;
 
 			if ( flowProgress.beginningStep ) {
-				beginningSegment = beginningSteps.indexOf( flowProgress.beginningStep );
+				beginningSegment = beginningSteps.indexOf( flowProgress.beginningStep ) / MAX_STEPS;
 			}
 
 			if ( ! flowProgress.beginningStep && flowProgress.middleProgress ) {
