@@ -224,6 +224,12 @@ $input-z-index: 20;
 				}
 			}
 
+			&--disable {
+				&::before {
+					display: none;
+				}
+			}
+
 			padding-left: 8px;
 		}
 	}
