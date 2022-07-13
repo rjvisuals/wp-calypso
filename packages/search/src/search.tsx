@@ -56,6 +56,7 @@ type Props = {
 	disabled?: boolean;
 	fitsContainer?: boolean;
 	hideClose?: boolean;
+	hideEdgeFading?: boolean;
 	isReskinned?: boolean;
 	hideOpenIcon?: boolean;
 	inputLabel?: string;
@@ -137,6 +138,7 @@ const InnerSearch = (
 		searching = false,
 		compact = false,
 		hideOpenIcon = false,
+		hideEdgeFading = false,
 		openIconSide = 'left',
 		minLength,
 		maxLength,
@@ -371,7 +373,9 @@ const InnerSearch = (
 		'has-open-icon': ! hideOpenIcon,
 	} );
 
-	const fadeClass = classNames( 'search-component__input-fade', dir );
+	const fadeClass = classNames( 'search-component__input-fade', dir, {
+		'search-component__input-fade--disable': hideEdgeFading,
+	} );
 	const inputClass = classNames( 'search-component__input', dir );
 
 	const shouldRenderRightOpenIcon = openIconSide === 'right' && ! keyword;
