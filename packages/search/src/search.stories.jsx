@@ -65,3 +65,5 @@ export const WithOverlayStyling = () => {
 };
 
 export const WithDefaultValue = () => <BoxedSearch defaultValue="a default search value" />;
+
+export const WithoutFadeOnEdge = () => <BoxedSearch hideEdgeFading />;
