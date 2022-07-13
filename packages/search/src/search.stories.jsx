@@ -1,3 +1,4 @@
+import './search.stories.scss';
 import { action } from '@storybook/addon-actions';
 import Search from './search';
 
@@ -65,3 +66,8 @@ export const WithOverlayStyling = () => {
 };
 
 export const WithDefaultValue = () => <BoxedSearch defaultValue="a default search value" />;
+
+export const WithDifferentColor = () => (
+	// eslint-disable-next-line wpcalypso/jsx-classname-namespace
+	<BoxedSearch className="stories__search--with-different-color" />
+);
