@@ -35,3 +35,13 @@ export interface Article {
 export interface FeatureFlags {
 	loadNextStepsTutorial: boolean;
 }
+
+export interface SupportTicket {
+	id?: number;
+	status: string;
+	subject: string;
+	time: Date;
+	type: string;
+	url: string;
+	when: string;
+}
