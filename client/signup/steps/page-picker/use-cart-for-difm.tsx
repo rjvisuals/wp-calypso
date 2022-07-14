@@ -189,7 +189,6 @@ export function useCartForDIFM( selectedPages: string[] ): {
 	const debouncedReplaceProductsInCart = useMemo(
 		() =>
 			debounce( ( products ) => {
-				console.log( 'replaceProductsInCart adding products' );
 				replaceProductsInCart( products );
 			}, 750 ),
 		[]
