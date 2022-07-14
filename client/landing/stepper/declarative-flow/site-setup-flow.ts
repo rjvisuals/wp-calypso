@@ -25,7 +25,7 @@ import type { StepPath } from './internals/steps-repository';
 
 const SiteIntent = Onboard.SiteIntent;
 const SiteGoal = Onboard.SiteGoal;
-const MAX_STEPS = 15;
+const MAX_STEPS = 10;
 
 export const siteSetupFlow: Flow = {
 	name: 'site-setup',
@@ -116,6 +116,7 @@ export const siteSetupFlow: Flow = {
 			let beginningSegment = ( beginningSteps.length - 1 ) / MAX_STEPS;
 			let middleSegment = 0;
 			let middleProgress: { progress: number; count: number } | null = null;
+			let endStep = false;
 			let flowProgress;
 
 			switch ( currentStep ) {
@@ -125,7 +126,7 @@ export const siteSetupFlow: Flow = {
 					beginningSegment = beginningSteps.indexOf( currentStep ) / MAX_STEPS;
 					break;
 				case 'processing':
-					flowProgress = MAX_STEPS;
+					endStep = true;
 					break;
 			}
 
@@ -142,9 +143,6 @@ export const siteSetupFlow: Flow = {
 						case 'designSetup':
 							middleProgress = { progress: 3, count: 4 };
 							break;
-						// case 'processing':
-						// 	updateFlowProgress( { endStep: true } );
-						// 	break;
 					}
 
 					break;
@@ -154,9 +152,6 @@ export const siteSetupFlow: Flow = {
 						case 'designSetup':
 							middleProgress = { progress: 1, count: 2 };
 							break;
-						// case 'processing':
-						// 	updateFlowProgress( { endStep: true } );
-						// 	break;
 					}
 
 					break;
@@ -164,36 +159,37 @@ export const siteSetupFlow: Flow = {
 				case SiteIntent.Sell: {
 					switch ( currentStep ) {
 						case 'options':
-							middleProgress = { progress: 1, count: 6 };
+							middleProgress = { progress: 1, count: 8 };
 							break;
 						case 'storeFeatures':
-							middleProgress = { progress: 2, count: 6 };
+							middleProgress = { progress: 2, count: 8 };
 							break;
 					}
 					if ( storeType === 'simple' ) {
 						switch ( currentStep ) {
 							case 'designSetup':
-								middleProgress = { progress: 3, count: 6 };
+								middleProgress = { progress: 3, count: 8 };
 								break;
-							// case 'processing':
-							// 	updateFlowProgress( { endStep: true } );
-							// 	break;
 						}
 					} else if ( storeType === 'power' ) {
 						switch ( currentStep ) {
 							case 'storeAddress':
-								middleProgress = { progress: 3, count: 6 };
+								middleProgress = { progress: 3, count: 8 };
 								break;
 							case 'businessInfo':
-								middleProgress = { progress: 4, count: 6 };
+								middleProgress = { progress: 4, count: 8 };
 								break;
 							case 'wooConfirm':
 							case 'wooInstallPlugins':
-								middleProgress = { progress: 5, count: 6 };
+								middleProgress = { progress: 5, count: 8 };
 								break;
-							// case 'processing':
-							// 	updateFlowProgress( { endStep: true } );
-							// 	break;
+							case 'wooTransfer':
+							case 'editEmail':
+								middleProgress = { progress: 6, count: 8 };
+								break;
+							case 'wooVerifyEmail':
+								middleProgress = { progress: 7, count: 8 };
+								break;
 						}
 					}
 
@@ -219,9 +215,6 @@ export const siteSetupFlow: Flow = {
 						case 'importerWordpress':
 							middleProgress = { progress: 3, count: 4 };
 							break;
-						// case 'processing':
-						// 	updateFlowProgress( { endStep: true } );
-						// 	break;
 					}
 
 					break;
@@ -233,6 +226,10 @@ export const siteSetupFlow: Flow = {
 			}
 
 			flowProgress = beginningSegment + middleSegment;
+
+			if ( endStep ) {
+				flowProgress = MAX_STEPS;
+			}
 
 			setStepProgress( { progress: flowProgress, count: MAX_STEPS } );
 		}
