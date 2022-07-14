@@ -8,7 +8,7 @@ import {
 import formatCurrency from '@automattic/format-currency';
 import { useShoppingCart } from '@automattic/shopping-cart';
 import { LocalizeProps, useTranslate } from 'i18n-calypso';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentUserCurrencyCode } from 'calypso/state/currency-code/selectors';
 import { buildDIFMCartExtrasObject } from 'calypso/state/difm/assemblers';
@@ -138,6 +138,16 @@ function getSiteCartProducts( {
 	} );
 }
 
+const debounce = ( callback: ( ...args: any[] ) => any, timeout: number ) => {
+	let timeoutId: number | undefined = undefined;
+	return ( ...args: any[] ) => {
+		window.clearTimeout( timeoutId );
+		timeoutId = window.setTimeout( () => {
+			callback( ...args );
+		}, timeout );
+	};
+};
+
 export function useCartForDIFM( selectedPages: string[] ): {
 	items: CartItem[];
 	total: string | null;
@@ -178,6 +188,14 @@ export function useCartForDIFM( selectedPages: string[] ): {
 		dispatch( requestProductsList() );
 	}, [ dispatch, siteId ] );
 
+	const debouncedReplaceProductsInCart = useMemo(
+		() =>
+			debounce( ( products ) => {
+				replaceProductsInCart( products );
+			}, 500 ),
+		[]
+	);
+
 	useEffect( () => {
 		if ( newOrExistingSiteChoice === 'existing-site' ) {
 			const productsToAdd: MinimalRequestCartProduct[] = [];
@@ -187,8 +205,7 @@ export function useCartForDIFM( selectedPages: string[] ): {
 					extra: difmExtra(),
 				} );
 			}
-
-			replaceProductsInCart( productsToAdd );
+			debouncedReplaceProductsInCart( productsToAdd );
 		}
 	}, [
 		activePremiumPlanScheme,
