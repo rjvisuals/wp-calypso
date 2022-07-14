@@ -130,7 +130,7 @@ const Total = styled.div`
 	div {
 		display: flex;
 		align-items: center;
-		&.value {
+		&.page-picker__value {
 			font-family: Recoleta;
 			font-size: 32px;
 			font-weight: 400;
@@ -182,17 +182,18 @@ export default function ShoppingCartForDIFM( { selectedPages }: { selectedPages:
 
 	const isInitialBasketLoaded = items.length > 0;
 
-	return newOrExistingSiteChoice === 'existing-site' && isCartLoading && ! isInitialBasketLoaded ? (
+	return ( newOrExistingSiteChoice === 'existing-site' && isCartLoading ) ||
+		! isInitialBasketLoaded ? (
 		<LoadingContainer>
 			{ items.length === 0 ? (
 				<>
-					<LoadingLine key="plan-placehorder" />
-					<LoadingLine key="difm-placehorder" />
+					<LoadingLine key="plan-placeholder" />
+					<LoadingLine key="difm-placeholder" />
 				</>
 			) : (
 				items.map( ( lineItem ) => <LoadingLine key={ lineItem.product.product_slug } /> )
 			) }
-			<LoadingLine key="total-placehorder" />
+			<LoadingLine key="total-placeholder" />
 		</LoadingContainer>
 	) : (
 		<CartContainer>
@@ -212,7 +213,7 @@ export default function ShoppingCartForDIFM( { selectedPages }: { selectedPages:
 					</Total>
 				</LineItemsWrapper>
 				<div className="page-picker__disclaimer">
-					{ '*' + translate( 'Final price will be calculated at checkout.' ) }
+					{ translate( '*Final price will be calculated at checkout.' ) }
 				</div>
 			</Cart>
 		</CartContainer>
