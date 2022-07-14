@@ -174,14 +174,12 @@ export function useCartForDIFM( selectedPages: string[] ): {
 		cartKey ?? undefined
 	);
 
-	const difmExtra = useCallback(
-		() =>
-			buildDIFMCartExtrasObject( {
-				...signupDependencies,
-				selectedPageTitles: selectedPages,
-			} ),
-		[ signupDependencies, selectedPages ]
-	);
+	const difmExtra = useCallback( () => {
+		return buildDIFMCartExtrasObject( {
+			...signupDependencies,
+			selectedPageTitles: selectedPages,
+		} );
+	}, [ signupDependencies, selectedPages ] );
 
 	useEffect( () => {
 		siteId && dispatch( fetchSitePlans( siteId ) );
@@ -191,8 +189,9 @@ export function useCartForDIFM( selectedPages: string[] ): {
 	const debouncedReplaceProductsInCart = useMemo(
 		() =>
 			debounce( ( products ) => {
+				console.log( 'replaceProductsInCart adding products' );
 				replaceProductsInCart( products );
-			}, 500 ),
+			}, 750 ),
 		[]
 	);
 
@@ -204,16 +203,10 @@ export function useCartForDIFM( selectedPages: string[] ): {
 					...difmLiteProduct,
 					extra: difmExtra(),
 				} );
+				debouncedReplaceProductsInCart( productsToAdd );
 			}
-			debouncedReplaceProductsInCart( productsToAdd );
 		}
-	}, [
-		activePremiumPlanScheme,
-		difmLiteProduct,
-		newOrExistingSiteChoice,
-		replaceProductsInCart,
-		difmExtra,
-	] );
+	}, [ newOrExistingSiteChoice, difmLiteProduct, difmExtra, debouncedReplaceProductsInCart ] );
 
 	let displayedCartItems: CartItem[] = [];
 	if ( newOrExistingSiteChoice === 'existing-site' ) {
