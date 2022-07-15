@@ -8,7 +8,7 @@ import {
 import formatCurrency from '@automattic/format-currency';
 import { useShoppingCart } from '@automattic/shopping-cart';
 import { LocalizeProps, useTranslate } from 'i18n-calypso';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentUserCurrencyCode } from 'calypso/state/currency-code/selectors';
 import { buildDIFMCartExtrasObject } from 'calypso/state/difm/assemblers';
@@ -17,11 +17,7 @@ import { getProductBySlug } from 'calypso/state/products-list/selectors';
 import { getSignupDependencyStore } from 'calypso/state/signup/dependency-store/selectors';
 import { fetchSitePlans } from 'calypso/state/sites/plans/actions';
 import { getSiteId } from 'calypso/state/sites/selectors';
-import type {
-	MinimalRequestCartProduct,
-	ResponseCart,
-	ResponseCartProduct,
-} from '@automattic/shopping-cart';
+import type { ResponseCart, ResponseCartProduct } from '@automattic/shopping-cart';
 import type { ProductListItem } from 'calypso/state/products-list/selectors/get-products-list';
 import type { TranslateResult } from 'i18n-calypso';
 
@@ -151,16 +147,20 @@ const debounce = ( callback: ( ...args: any[] ) => any, timeout: number ) => {
 export function useCartForDIFM( selectedPages: string[] ): {
 	items: CartItem[];
 	total: string | null;
-	isCartLoading: boolean;
+	isLoading: boolean;
+	isPendingUpdate: boolean;
+	isCartUpdateStarted: boolean;
 } {
-	const signupDependencies = useSelector( getSignupDependencyStore );
-	const { newOrExistingSiteChoice, siteId, siteSlug } = signupDependencies;
+	//This state is used by loader states to provide immediate feedback when a deebounced change happens to a cart
+	const [ isCartUpdateStarted, setIsCartUpdateStarted ] = useState( false );
 
+	const signupDependencies = useSelector( getSignupDependencyStore );
 	const translate = useTranslate();
 	const dispatch = useDispatch();
 	const proPlan = useSelector( ( state ) => getProductBySlug( state, PLAN_WPCOM_PRO ) );
 	const premiumPlan = useSelector( ( state ) => getProductBySlug( state, PLAN_PREMIUM ) );
 	const activePremiumPlanScheme = isEnabled( 'plans/pro-plan' ) ? proPlan : premiumPlan;
+	const { newOrExistingSiteChoice, siteId, siteSlug } = signupDependencies;
 
 	const extraPageProduct = useSelector( ( state ) =>
 		getProductBySlug( state, WPCOM_DIFM_EXTRA_PAGE )
@@ -174,12 +174,25 @@ export function useCartForDIFM( selectedPages: string[] ): {
 		cartKey ?? undefined
 	);
 
-	const difmExtra = useCallback( () => {
-		return buildDIFMCartExtrasObject( {
-			...signupDependencies,
-			selectedPageTitles: selectedPages,
-		} );
-	}, [ signupDependencies, selectedPages ] );
+	const serializedDifmProduct = JSON.stringify( difmLiteProduct );
+	const serializedSignupDependencies = JSON.stringify( signupDependencies );
+	const getDifmLiteCartProduct = useCallback( () => {
+		if ( difmLiteProduct ) {
+			return {
+				...difmLiteProduct,
+				extra: buildDIFMCartExtrasObject( {
+					...signupDependencies,
+					selectedPageTitles: selectedPages,
+				} ),
+			};
+		}
+		return null;
+	}, [ serializedSignupDependencies, selectedPages, serializedDifmProduct ] );
+
+	// As soon as page selection changes show some feedback to the user
+	useEffect( () => {
+		setIsCartUpdateStarted( true );
+	}, [ setIsCartUpdateStarted, selectedPages ] );
 
 	useEffect( () => {
 		siteId && dispatch( fetchSitePlans( siteId ) );
@@ -188,24 +201,21 @@ export function useCartForDIFM( selectedPages: string[] ): {
 
 	const debouncedReplaceProductsInCart = useMemo(
 		() =>
-			debounce( ( products ) => {
-				replaceProductsInCart( products );
-			}, 750 ),
+			debounce( async ( products ) => {
+				await replaceProductsInCart( products );
+				setIsCartUpdateStarted( false );
+			}, 800 ),
 		[]
 	);
 
 	useEffect( () => {
 		if ( newOrExistingSiteChoice === 'existing-site' ) {
-			const productsToAdd: MinimalRequestCartProduct[] = [];
+			const difmLiteProduct = getDifmLiteCartProduct();
 			if ( difmLiteProduct && difmLiteProduct.product_slug ) {
-				productsToAdd.push( {
-					...difmLiteProduct,
-					extra: difmExtra(),
-				} );
-				debouncedReplaceProductsInCart( productsToAdd );
+				debouncedReplaceProductsInCart( [ difmLiteProduct ] );
 			}
 		}
-	}, [ newOrExistingSiteChoice, difmLiteProduct, difmExtra, debouncedReplaceProductsInCart ] );
+	}, [ newOrExistingSiteChoice, getDifmLiteCartProduct, debouncedReplaceProductsInCart ] );
 
 	let displayedCartItems: CartItem[] = [];
 	if ( newOrExistingSiteChoice === 'existing-site' ) {
@@ -230,7 +240,9 @@ export function useCartForDIFM( selectedPages: string[] ): {
 	return {
 		items: displayedCartItems,
 		total: totalCostFormatted,
-		isCartLoading: isLoading || isPendingUpdate || currencyCode === null,
+		isLoading,
+		isPendingUpdate,
+		isCartUpdateStarted,
 	};
 }
 

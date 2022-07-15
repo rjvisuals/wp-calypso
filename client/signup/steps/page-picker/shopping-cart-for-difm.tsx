@@ -175,15 +175,14 @@ function DummyLineItem( {
 
 export default function ShoppingCartForDIFM( { selectedPages }: { selectedPages: string[] } ) {
 	const translate = useTranslate();
-	const { items, total, isCartLoading } = useCartForDIFM( selectedPages );
+	const { items, total, isLoading } = useCartForDIFM( selectedPages );
 	const signupDependencies = useSelector( getSignupDependencyStore );
 	const { newOrExistingSiteChoice } = signupDependencies;
 	const currencyCode = useSelector( getCurrentUserCurrencyCode );
 
 	const isInitialBasketLoaded = items.length > 0;
 
-	return ( newOrExistingSiteChoice === 'existing-site' && isCartLoading ) ||
-		! isInitialBasketLoaded ? (
+	return ( newOrExistingSiteChoice === 'existing-site' && isLoading ) || ! isInitialBasketLoaded ? (
 		<LoadingContainer>
 			{ items.length === 0 ? (
 				<>

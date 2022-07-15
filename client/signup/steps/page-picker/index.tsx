@@ -269,7 +269,8 @@ function DIFMPagePicker( props: StepProps ) {
 		}
 	);
 
-	const { items, isCartLoading } = useCartForDIFM( selectedPages );
+	const { items, isPendingUpdate, isLoading, isCartUpdateStarted } =
+		useCartForDIFM( selectedPages );
 	const isExistingSite = newOrExistingSiteChoice === 'existing-site';
 	const isInitialBasketLoaded = items.length > 0;
 
@@ -289,7 +290,10 @@ function DIFMPagePicker( props: StepProps ) {
 			headerButton={
 				<StyledButton
 					disabled={ ! isInitialBasketLoaded }
-					busy={ ( isExistingSite && isCartLoading ) || isCheckoutPressed }
+					busy={
+						( isExistingSite && ( isPendingUpdate || isLoading || isCartUpdateStarted ) ) ||
+						isCheckoutPressed
+					}
 					primary
 					onClick={ submitPickedPages }
 				>
