@@ -1,7 +1,11 @@
 @import '@wordpress/base-styles/breakpoints';
 @import '@wordpress/base-styles/mixins';
 
-.videopress-site__create {
+.videopress-upload__dropzone {
+	min-height: 250px;
+	width: 100%;
+}
+.videopress-upload__create {
 	flex: 1;
 	.p2-step-wrapper__header-text {
 		font-size: var( --p2-font-size-form-xxl );
@@ -10,7 +14,7 @@
 	}
 }
 
-.videopress-site__header-logo {
+.videopress-upload__header-logo {
 	svg path {
 		fill: inherit;
 	}
@@ -22,7 +26,7 @@
 	flex-direction: column;
 }
 
-.videopress-site__wordpress-domain-suffix {
+.videopress-upload__wordpress-domain-suffix {
 	color: var( --p2-color-text-light );
 	line-height: 22px;
 	pointer-events: none;
@@ -36,12 +40,12 @@
 	box-sizing: border-box;
 }
 
-.videopress-site__wordpress-domain-default-container {
+.videopress-upload__wordpress-domain-default-container {
 	position: relative;
 	height: 0;
 }
 
-.videopress-site__wordpress-domain-default {
+.videopress-upload__wordpress-domain-default {
 	color: var( --p2-color-text );
 	position: absolute;
 	font-size: var( --p2-font-size-form );
@@ -53,7 +57,7 @@
 	max-width: 400px;
 }
 
-.videopress-site__site-wordpress-domain {
+.videopress-upload__site-wordpress-domain {
 	font-weight: 600;
 	margin-left: 16px;
 	text-overflow: ellipsis;
@@ -65,11 +69,11 @@
 	}
 }
 
-.videopress-site__site-wordpress-suffix {
+.videopress-upload__site-wordpress-suffix {
 	flex: 2 1 auto;
 }
 
-.videopress-site__site-wordpress-domain-refresh {
+.videopress-upload__site-wordpress-domain-refresh {
 	flex: 0 0 50px;
 	min-width: 50px;
 	cursor: pointer;
@@ -88,16 +92,16 @@
 	text-align: center;
 }
 
-.videopress-site__workspace-form-input-explanation {
+.videopress-upload__workspace-form-input-explanation {
 	font-style: normal;
 }
 
-.videopress-site__workspace-form-notice {
+.videopress-upload__workspace-form-notice {
 	display: flex;
 	font-size: var( --p2-font-size-form-xxs );
 }
 
-.videopress-site__workspace-form-notice-wrapper {
+.videopress-upload__workspace-form-notice-wrapper {
 	margin-top: 40px;
 	hr {
 		margin: 10px 0;
@@ -108,29 +112,29 @@
 	}
 }
 
-.videopress-site__workspace-form-notice-icon {
+.videopress-upload__workspace-form-notice-icon {
 	margin-right: 16px;
 	svg {
 		vertical-align: middle;
 	}
 }
 
-.videopress-site__validation-site,
-.videopress-site__validation-site-title {
+.videopress-upload__validation-site,
+.videopress-upload__validation-site-title {
 	.validation-fieldset__validation-message {
 		min-height: 0;
 	}
 }
 
-.videopress-site__validation-site-title.validation-fieldset {
+.videopress-upload__validation-site-title.validation-fieldset {
 	margin-bottom: 32px;
 }
 
-.videopress-site__form-footer {
+.videopress-upload__form-footer {
 	margin-top: 40px;
 }
 
-.videopress-site__form-submit-btn.is-primary {
+.videopress-upload__form-submit-btn.is-primary {
 	float: none;
 	margin: 0;
 	padding: 14px;
@@ -158,7 +162,7 @@
 	}
 }
 
-.videopress-site__form .form-label {
+.videopress-upload__form .form-label {
 	color: var( --videopress-color-text );
 	font-weight: 500; /* stylelint-disable-line */
 	font-size: var( --p2-font-size-form-xxs );
@@ -166,7 +170,7 @@
 	margin-bottom: 8px;
 }
 
-.videopress-site__form input[type='text'].form-text-input {
+.videopress-upload__form input[type='text'].form-text-input {
 	padding: 14px 16px;
 	line-height: 1;
 	border-radius: 2px;
@@ -212,19 +216,19 @@
 	}
 }
 
-.videopress-site__form input[type='text'].videopress-site__site-url.form-text-input {
+.videopress-upload__form input[type='text'].videopress-upload__site-url.form-text-input {
 	padding-right: 150px;
 	text-overflow: ellipsis;
 }
 
-.videopress-site__form input[type='text'].videopress-site__site-suggested-url.form-text-input {
+.videopress-upload__form input[type='text'].videopress-upload__site-suggested-url.form-text-input {
 	padding-right: 160px;
 	color: transparent;
 	border-color: var( --p2-color-border-light );
 	-webkit-text-fill-color: transparent;
 }
 
-.videopress-site__form .form-input-validation {
+.videopress-upload__form .form-input-validation {
 	color: var( --p2-color-text );
 	font-size: var( --p2-font-size-form-xxs );
 	line-height: 1.5;
@@ -241,12 +245,12 @@
 	}
 }
 
-.videopress-site__learn-more {
+.videopress-upload__learn-more {
 	padding-top: 48px;
 	text-align: center;
 }
 
-.videopress-site__learn-more-link {
+.videopress-upload__learn-more-link {
 	color: var( --p2-color-link );
 	text-decoration-line: none;
 	font-size: var( --p2-font-size-form-xxs );

@@ -1,0 +1,1 @@
+export const VIDEOPRESS_ONBOARDING_FLOW_STEPS = 3;
