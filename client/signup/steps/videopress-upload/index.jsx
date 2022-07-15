@@ -25,7 +25,7 @@ import VideoPressStepWrapper from 'calypso/signup/videopress-step-wrapper';
 import { saveSignupStep, submitSignupStep } from 'calypso/state/signup/progress/actions';
 import './style.scss';
 
-const debug = debugFactory( 'calypso:steps:videopress-site' );
+const debug = debugFactory( 'calypso:steps:videopress-upload' );
 
 /**
  * Constants
@@ -48,14 +48,28 @@ const WPCOM_SUBDOMAIN_SUFFIX_SUGGESTIONS = [ 'video', 'tube' ];
 const EMAIL_TRUCE_CAMPAIGN_REF = 'videopress-email-truce';
 const EMAIL_TRUCE_CAMPAIGN_ID = 'videopress-email-truce';
 
+// prerequisites.
+// * site, user, paid for.
+// * useUploader from calypso.
+// * edit video gui
+// * when editing, how can I go back to viewing all uploads?
+// * Finish button
+// * skip this step button.
+
+// const videoFiles = this.filterFilesUploadableOnVideoPress( files );
+// if ( videoFiles.length ) {
+// 	const uploader = new TusUploader( this.wpcom, this._sid );
+// 	return uploader.startUpload( videoFiles );
+// }
+
 /**
  * Module variables
  */
 let siteUrlsSearched = [];
 let timesValidationFailed = 0;
 
-class VideoPressSite extends Component {
-	static displayName = 'VideoPressSite';
+class VideoPressUpload extends Component {
+	static displayName = 'VideoPressUpload';
 
 	constructor( props ) {
 		super( props );
@@ -349,8 +363,8 @@ class VideoPressSite extends Component {
 
 	save = () => {
 		this.props.saveSignupStep( {
-			stepName: 'videopress-site',
-			form: this.state.form,
+			stepName: 'videopress-upload',
+			form: this.state.form, // Should we persist already uploaded video ids?
 		} );
 	};
 
@@ -419,24 +433,24 @@ class VideoPressSite extends Component {
 		const { isFetchingDefaultSuggestion } = this.state;
 
 		return (
-			<div class="videopress-site__wordpress-domain-default-container">
+			<div class="videopress-upload__wordpress-domain-default-container">
 				<span
-					className="videopress-site__wordpress-domain-default"
+					className="videopress-upload__wordpress-domain-default"
 					title={ site ? `https://${ site }.wordpress.com` : '' }
 				>
 					<span
 						onMouseLeave={ handleMouseLeave }
-						className="videopress-site__site-wordpress-domain"
+						className="videopress-upload__site-wordpress-domain"
 					>
 						{ site }
 					</span>
-					<span className="videopress-site__site-wordpress-suffix">
+					<span className="videopress-upload__site-wordpress-suffix">
 						{ site ? '.wordpress.com' : '' }&nbsp;
 					</span>
 					<button
 						type="button"
 						disabled={ isFetchingDefaultSuggestion }
-						className="videopress-site__site-wordpress-domain-refresh"
+						className="videopress-upload__site-wordpress-domain-refresh"
 						onClick={ this.suggestDefaultSubdomain }
 					>
 						<Icon size={ 24 } icon={ reusableBlock } />
@@ -467,13 +481,13 @@ class VideoPressSite extends Component {
 				<FormTextInput
 					id="site-address-input"
 					autoCapitalize={ 'off' }
-					className="videopress-site__site-suggested-url"
+					className="videopress-upload__site-suggested-url"
 					disabled={ true }
 					name="suggested-site"
 					value={ site ? `https://${ site }.wordpress.com` : '' }
 				/>
 				{ this.renderDefaultSite() }
-				<FormSettingExplanation className="videopress-site__workspace-form-input-explanation">
+				<FormSettingExplanation className="videopress-upload__workspace-form-input-explanation">
 					{ this.props.translate(
 						'We suggest this URL, but you can {{a}}choose manually{{/a}} too',
 						{
@@ -496,7 +510,7 @@ class VideoPressSite extends Component {
 					id="site-address-input"
 					ref={ this.customizeSiteInput }
 					autoCapitalize={ 'off' }
-					className="videopress-site__site-url"
+					className="videopress-upload__site-url"
 					disabled={ submitting }
 					name="site"
 					value={ site }
@@ -505,14 +519,14 @@ class VideoPressSite extends Component {
 					onBlur={ this.handleBlur }
 					onChange={ this.handleChangeEvent }
 				/>
-				<FormSettingExplanation className="videopress-site__workspace-form-input-explanation">
+				<FormSettingExplanation className="videopress-upload__workspace-form-input-explanation">
 					{ this.props.translate( 'Enter an address, or {{a}}choose a suggestion{{/a}}', {
 						components: {
 							a: <a href="#" onClick={ this.hideSiteCustomizer } />, // eslint-disable-line jsx-a11y/anchor-is-valid
 						},
 					} ) }
 				</FormSettingExplanation>
-				<span className="videopress-site__wordpress-domain-suffix">.wordpress.com</span>
+				<span className="videopress-upload__wordpress-domain-suffix">.wordpress.com</span>
 			</>
 		);
 	};
@@ -522,10 +536,10 @@ class VideoPressSite extends Component {
 		return (
 			<ValidationFieldset
 				errorMessages={ this.getErrorMessagesWithLogin( 'site' ) }
-				className="videopress-site__validation-site"
+				className="videopress-upload__validation-site"
 			>
 				<FormLabel htmlFor="site-address-input">{ this.props.translate( 'Web url' ) }</FormLabel>
-				<div className="videopress-site__site-url-container">
+				<div className="videopress-upload__site-url-container">
 					{ ! showCustomSiteAddressInput && this.renderSuggestedSiteAddressInput() }
 					{ showCustomSiteAddressInput && this.renderCustomSiteAddressInput() }
 				</div>
@@ -544,14 +558,14 @@ class VideoPressSite extends Component {
 			<>
 				<ValidationFieldset
 					errorMessages={ this.getErrorMessagesWithLogin( 'siteTitle' ) }
-					className="videopress-site__validation-site-title"
+					className="videopress-upload__validation-site-title"
 				>
 					<FormLabel htmlFor="site-title-input">{ this.props.translate( 'Site title' ) }</FormLabel>
 					<FormTextInput
 						id="site-title-input"
 						autoFocus={ true } // eslint-disable-line jsx-a11y/no-autofocus
 						autoCapitalize={ 'off' }
-						className="videopress-site__site-title"
+						className="videopress-upload__site-title"
 						disabled={ submitting }
 						name="site-title"
 						value={ siteTitle }
@@ -567,7 +581,7 @@ class VideoPressSite extends Component {
 						id="site-description"
 						autoFocus={ true } // eslint-disable-line jsx-a11y/no-autofocus
 						autoCapitalize={ 'off' }
-						className="videopress-site__site-description"
+						className="videopress-upload__site-description"
 						disabled={ submitting }
 						name="site-description"
 						value={ siteDescription }
@@ -588,15 +602,15 @@ class VideoPressSite extends Component {
 			return this.props.translate( 'Site created - Go to next step' );
 		}
 
-		return this.props.translate( 'Continue to payment' );
+		return this.props.translate( 'Finish' );
 	};
 
 	renderFormNotice = () => {
 		return (
-			<div className="videopress-site__workspace-form-notice-wrapper">
+			<div className="videopress-upload__workspace-form-notice-wrapper">
 				<hr />
-				<div className="videopress-site__workspace-form-notice">
-					<div className="videopress-site__workspace-form-notice-icon">
+				<div className="videopress-upload__workspace-form-notice">
+					<div className="videopress-upload__workspace-form-notice-icon">
 						<Gridicon size={ 24 } icon="info-outline" />
 					</div>
 					<p>{ this.props.translate( 'You can change all of this later' ) }</p>
@@ -614,12 +628,12 @@ class VideoPressSite extends Component {
 		return (
 			<>
 				<VideoPressStepWrapper
-					className="videopress-site__create"
+					className="videopress-upload__create"
 					flowName={ this.props.flowName }
 					stepName={ this.props.stepName }
 					stepIndicator={ this.props.translate( 'Step %(currentStep)s of %(totalSteps)s', {
 						args: {
-							currentStep: 2,
+							currentStep: 3,
 							totalSteps: 3, // TODO: change as we add more steps.
 						},
 					} ) }
@@ -627,17 +641,20 @@ class VideoPressSite extends Component {
 					headerText={ this.props.translate( 'Name your site' ) }
 					subHeaderText={ this.props.translate( 'Customize some details about your new site' ) }
 				>
-					<form className="videopress-site__form" onSubmit={ this.handleSubmit } noValidate>
+					<form className="videopress-upload__form" onSubmit={ this.handleSubmit } noValidate>
 						{ this.formFields() }
-						<div className="videopress-site__form-footer">
-							<FormButton disabled={ submitDisabled } className="videopress-site__form-submit-btn">
+						<div className="videopress-upload__form-footer">
+							<FormButton
+								disabled={ submitDisabled }
+								className="videopress-upload__form-submit-btn"
+							>
 								{ this.buttonText() }
 							</FormButton>
 						</div>
 					</form>
 
-					<div className="videopress-site__learn-more">
-						<a href="https://videopress.com/" className="videopress-site__learn-more-link">
+					<div className="videopress-upload__learn-more">
+						<a href="https://videopress.com/" className="videopress-upload__learn-more-link">
 							{ this.props.translate( 'Learn more about VideoPress' ) }
 						</a>
 					</div>
@@ -647,4 +664,6 @@ class VideoPressSite extends Component {
 	}
 }
 
-export default connect( null, { saveSignupStep, submitSignupStep } )( localize( VideoPressSite ) );
+export default connect( null, { saveSignupStep, submitSignupStep } )(
+	localize( VideoPressUpload )
+);
