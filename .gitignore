@@ -112,3 +112,5 @@ desktop/.yarn/*
 !.yarn/versions
 .pnp.*
 yarn-json-output.json
+
+.phpunit.result.cache
