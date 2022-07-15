@@ -100,10 +100,12 @@ function getSiteCartProducts( {
 	responseCart,
 	extraPageProduct,
 	translate,
+	currencyCode,
 }: {
 	responseCart: ResponseCart;
 	extraPageProduct: ProductListItem;
 	translate: LocalizeProps[ 'translate' ];
+	currencyCode: string;
 } ): CartItem[] {
 	const cartItems: CartItem[] = responseCart.products.map( ( product ) => {
 		switch ( product.product_slug ) {
@@ -157,7 +159,11 @@ function getSiteCartProducts( {
 			lineCost: 0,
 			productCost: extraPageProduct.cost,
 			nameOverride: `0 ${ translate( 'Extra Pages' ) }`,
-			meta: extraPageProduct.item_original_cost_for_quantity_one_display + translate( ' Per Page' ),
+			meta: translate( '%(perPageCost)s Per Page', {
+				args: {
+					perPageCost: formatCurrency( extraPageProduct.cost, currencyCode, { precision: 0 } ),
+				},
+			} ),
 		} );
 	}
 	return cartItems;
@@ -249,7 +255,12 @@ export function useCartForDIFM( selectedPages: string[] ): {
 	let displayedCartItems: CartItem[] = [];
 	if ( extraPageProduct && difmLiteProduct && activePremiumPlanScheme ) {
 		if ( newOrExistingSiteChoice === 'existing-site' ) {
-			displayedCartItems = getSiteCartProducts( { responseCart, translate, extraPageProduct } );
+			displayedCartItems = getSiteCartProducts( {
+				responseCart,
+				translate,
+				extraPageProduct,
+				currencyCode: currencyCode ?? 'USD',
+			} );
 		} else {
 			displayedCartItems = getDummyCartProducts( {
 				selectedPages,
