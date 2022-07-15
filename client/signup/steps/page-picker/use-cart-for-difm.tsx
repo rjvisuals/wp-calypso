@@ -152,12 +152,13 @@ function getSiteCartProducts( {
 		}
 	} );
 
+	// Add a 0 line item product if there is no extra page in the cart
 	if ( ! cartItems.some( ( c ) => c.productSlug === WPCOM_DIFM_EXTRA_PAGE ) ) {
 		cartItems.push( {
 			productSlug: extraPageProduct.product_slug,
 			productOriginalName: extraPageProduct.product_name,
 			lineCost: 0,
-			productCost: extraPageProduct.cost,
+			productCost: 0,
 			nameOverride: `0 ${ translate( 'Extra Pages' ) }`,
 			meta: translate( '%(perPageCost)s Per Page', {
 				args: {
