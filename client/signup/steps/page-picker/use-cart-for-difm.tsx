@@ -17,15 +17,15 @@ import { getProductBySlug } from 'calypso/state/products-list/selectors';
 import { getSignupDependencyStore } from 'calypso/state/signup/dependency-store/selectors';
 import { fetchSitePlans } from 'calypso/state/sites/plans/actions';
 import { getSiteId } from 'calypso/state/sites/selectors';
-import type { ResponseCart, ResponseCartProduct } from '@automattic/shopping-cart';
+import type { ResponseCart } from '@automattic/shopping-cart';
 import type { ProductListItem } from 'calypso/state/products-list/selectors/get-products-list';
 import type { TranslateResult } from 'i18n-calypso';
 
 export type CartItem = {
 	nameOverride?: TranslateResult;
-	product:
-		| ( Partial< ProductListItem > & Pick< ProductListItem, 'cost' | 'product_name' > )
-		| ( Partial< ResponseCartProduct > & Pick< ResponseCartProduct, 'cost' | 'product_name' > );
+	productSlug: string;
+	productOriginalName: string;
+	productCost: number;
 	meta?: TranslateResult;
 	productCount?: number;
 	lineCost: number;
@@ -36,9 +36,9 @@ const FREE_PAGES = 5;
 type DummyCartParams = {
 	selectedPages: string[];
 	currencyCode: string;
-	activePlanScheme: ProductListItem | null;
-	difmLiteProduct: ProductListItem | null;
-	extraPageProduct: ProductListItem | null;
+	activePlanScheme: ProductListItem;
+	difmLiteProduct: ProductListItem;
+	extraPageProduct: ProductListItem;
 	translate: LocalizeProps[ 'translate' ];
 };
 
@@ -56,25 +56,32 @@ function getDummyCartProducts( {
 		displayedCartItems = [
 			{
 				nameOverride: translate( 'Website Design Service' ),
-				product: difmLiteProduct,
+				productSlug: difmLiteProduct.product_slug,
+				productOriginalName: difmLiteProduct.product_name,
 				lineCost: difmLiteProduct.cost,
+				productCost: difmLiteProduct.cost,
 				meta: translate( 'One-time fee' ),
 			},
 			{
-				product: activePlanScheme,
+				productSlug: difmLiteProduct.product_slug,
+				productOriginalName: activePlanScheme.product_name,
+				lineCost: activePlanScheme.cost,
+				productCost: activePlanScheme.cost,
 				meta: translate( 'Plan Subscription: %(planPrice)s per year', {
 					args: {
 						planPrice: formatCurrency( activePlanScheme.cost, currencyCode, { precision: 0 } ),
 					},
 				} ),
-				lineCost: activePlanScheme.cost,
 			},
 
 			{
 				nameOverride: `${ extraPageCount } ${
 					extraPageCount === 1 ? translate( 'Extra Page' ) : translate( 'Extra Pages' )
 				}`,
-				product: extraPageProduct,
+
+				productSlug: difmLiteProduct.product_slug,
+				productOriginalName: extraPageProduct.product_name,
+				productCost: extraPageProduct.cost,
 				meta: translate( '%(perPageCost)s Per Page', {
 					args: {
 						perPageCost: formatCurrency( extraPageProduct.cost, currencyCode, { precision: 0 } ),
@@ -91,47 +98,69 @@ function getDummyCartProducts( {
 
 function getSiteCartProducts( {
 	responseCart,
+	extraPageProduct,
 	translate,
 }: {
 	responseCart: ResponseCart;
+	extraPageProduct: ProductListItem;
 	translate: LocalizeProps[ 'translate' ];
 } ): CartItem[] {
-	return responseCart.products.map( ( product ) => {
+	const cartItems: CartItem[] = responseCart.products.map( ( product ) => {
 		switch ( product.product_slug ) {
 			case PLAN_WPCOM_PRO:
 				return {
-					product: product,
+					productSlug: product.product_slug,
+					productOriginalName: product.product_name,
 					lineCost: product.cost,
+					productCost: product.cost,
 					meta: translate( 'Plan Subscription: %(planPrice)s per year', {
 						args: { planPrice: product.product_cost_display },
 					} ),
 				};
 			case WPCOM_DIFM_LITE:
 				return {
+					productSlug: product.product_slug,
 					nameOverride: 'Website Design Service',
-					product: product,
+					productOriginalName: product.product_name,
 					lineCost: product.cost,
+					productCost: product.cost,
 					meta: translate( 'One-time fee' ),
 				};
 			case WPCOM_DIFM_EXTRA_PAGE:
 				return {
+					productSlug: product.product_slug,
 					nameOverride: `${ product.quantity } ${
 						product.quantity === 1 ? translate( 'Extra Page' ) : translate( 'Extra Pages' )
 					}`,
-					product: product,
+					productOriginalName: product.product_name,
 					lineCost: product.cost,
+					productCost: product.cost,
 					meta: product.item_original_cost_for_quantity_one_display + ' ' + translate( 'Per Page' ),
 				};
 
 			default:
 				return {
+					productSlug: product.product_slug,
 					nameOverride: 'Website Design Service',
-					product: product,
+					productOriginalName: product.product_name,
 					lineCost: product.cost,
+					productCost: product.cost,
 					meta: translate( 'One-time fee' ),
 				};
 		}
 	} );
+
+	if ( ! cartItems.some( ( c ) => c.productSlug === WPCOM_DIFM_EXTRA_PAGE ) ) {
+		cartItems.push( {
+			productSlug: extraPageProduct.product_slug,
+			productOriginalName: extraPageProduct.product_name,
+			lineCost: 0,
+			productCost: extraPageProduct.cost,
+			nameOverride: `0 ${ translate( 'Extra Pages' ) }`,
+			meta: extraPageProduct.item_original_cost_for_quantity_one_display + translate( ' Per Page' ),
+		} );
+	}
+	return cartItems;
 }
 
 const debounce = ( callback: ( ...args: any[] ) => any, timeout: number ) => {
@@ -218,17 +247,19 @@ export function useCartForDIFM( selectedPages: string[] ): {
 	}, [ newOrExistingSiteChoice, getDifmLiteCartProduct, debouncedReplaceProductsInCart ] );
 
 	let displayedCartItems: CartItem[] = [];
-	if ( newOrExistingSiteChoice === 'existing-site' ) {
-		displayedCartItems = getSiteCartProducts( { responseCart, translate } );
-	} else {
-		displayedCartItems = getDummyCartProducts( {
-			selectedPages,
-			currencyCode: currencyCode ?? 'USD',
-			translate,
-			activePlanScheme: activePremiumPlanScheme,
-			difmLiteProduct,
-			extraPageProduct,
-		} );
+	if ( extraPageProduct && difmLiteProduct && activePremiumPlanScheme ) {
+		if ( newOrExistingSiteChoice === 'existing-site' ) {
+			displayedCartItems = getSiteCartProducts( { responseCart, translate, extraPageProduct } );
+		} else {
+			displayedCartItems = getDummyCartProducts( {
+				selectedPages,
+				currencyCode: currencyCode ?? 'USD',
+				translate,
+				activePlanScheme: activePremiumPlanScheme,
+				difmLiteProduct,
+				extraPageProduct,
+			} );
+		}
 	}
 
 	const totalCost = displayedCartItems.reduce(

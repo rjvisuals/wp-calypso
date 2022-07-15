@@ -150,23 +150,20 @@ const Total = styled.div`
 `;
 
 function DummyLineItem( {
-	product,
+	productCost,
+	productOriginalName,
 	meta,
 	productCount,
 	nameOverride,
 	currencyCode,
 }: CartItem & { currencyCode: string } ) {
-	if ( ! product ) {
-		return null;
-	}
-
 	return (
 		<DummyLineItemContainer>
-			<div className="page-picker__title">{ nameOverride ?? product.product_name }</div>
+			<div className="page-picker__title">{ nameOverride ?? productOriginalName }</div>
 			<div className="page-picker__price">
 				{ productCount !== undefined
-					? formatCurrency( product.cost * productCount, currencyCode, { precision: 0 } )
-					: formatCurrency( product.cost, currencyCode, { precision: 0 } ) }
+					? formatCurrency( productCost * productCount, currencyCode, { precision: 0 } )
+					: formatCurrency( productCost, currencyCode, { precision: 0 } ) }
 			</div>
 			{ meta && <div className="page-picker__meta">{ meta }</div> }
 		</DummyLineItemContainer>
@@ -180,18 +177,13 @@ export default function ShoppingCartForDIFM( { selectedPages }: { selectedPages:
 	const { newOrExistingSiteChoice } = signupDependencies;
 	const currencyCode = useSelector( getCurrentUserCurrencyCode );
 
-	const isInitialBasketLoaded = items.length > 0;
+	const isInitialBasketLoaded = items.length > 1;
 
 	return ( newOrExistingSiteChoice === 'existing-site' && isLoading ) || ! isInitialBasketLoaded ? (
 		<LoadingContainer>
-			{ items.length === 0 ? (
-				<>
-					<LoadingLine key="plan-placeholder" />
-					<LoadingLine key="difm-placeholder" />
-				</>
-			) : (
-				items.map( ( lineItem ) => <LoadingLine key={ lineItem.product.product_slug } /> )
-			) }
+			<LoadingLine key="plan-placeholder" />
+			<LoadingLine key="difm-placeholder" />
+			<LoadingLine key="extra-page-placeholder" />
 			<LoadingLine key="total-placeholder" />
 		</LoadingContainer>
 	) : (
@@ -200,7 +192,7 @@ export default function ShoppingCartForDIFM( { selectedPages }: { selectedPages:
 				<LineItemsWrapper>
 					{ items.map( ( item ) => (
 						<DummyLineItem
-							key={ item.product.product_slug }
+							key={ item.productSlug }
 							{ ...item }
 							currencyCode={ currencyCode ?? 'USD' }
 						/>
